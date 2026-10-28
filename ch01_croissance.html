@@ -2917,6 +2917,28 @@ window.RENVOIS_SF = {
    "sf": "Calculer un PIB réel aux prix d'une année de référence."
   }
  ],
+ "exercice": [
+  {
+   "id": "0.1",
+   "sf": "Calculer un taux de croissance et enchaîner des taux."
+  },
+  {
+   "id": "2.2",
+   "sf": "Passer du nominal au réel."
+  },
+  {
+   "id": "3.1",
+   "sf": "Passer d'une croissance totale à une croissance par habitant."
+  },
+  {
+   "id": "3.2",
+   "sf": "Calculer une productivité horaire et sa variation."
+  },
+  {
+   "id": "3.3",
+   "sf": "Écrire et lire Y/N = Y/H × H/L × L/N, avec les unités."
+  }
+ ],
  "ralentissement": [
   {
    "id": "0.2",
@@ -3219,28 +3241,6 @@ window.RENVOIS_SF = {
   {
    "id": "2.2",
    "sf": "Passer du nominal au réel."
-  }
- ],
- "exercice": [
-  {
-   "id": "2.2",
-   "sf": "Passer du nominal au réel."
-  },
-  {
-   "id": "2.3",
-   "sf": "Choisir entre l'IPC et le déflateur du PIB."
-  },
-  {
-   "id": "3.1",
-   "sf": "Passer d'une croissance totale à une croissance par habitant."
-  },
-  {
-   "id": "3.2",
-   "sf": "Calculer une productivité horaire et sa variation."
-  },
-  {
-   "id": "3.3",
-   "sf": "Écrire et lire Y/N = Y/H × H/L × L/N, avec les unités."
   }
  ],
  "ipc-deflateur": [
@@ -4883,7 +4883,7 @@ window.FICHE_PJ = (function () {
     html: `<div class="p-row" style="gap:60px">
       <div class="p-w50 p-col" style="gap:26px">
         <p class="p-txt">La Valdorée, un pays fictif. Seul, sur papier, calculatrice simple autorisée. Toutes les copies sont ramassées.</p>
-        <div class="pj-card"><div class="h">Quatre questions sur la feuille</div><ol class="pj-ol"><li>PIB réel et croissance</li><li>PIB réel par habitant</li><li>Productivité horaire et heures travaillées</li><li>Pouvoir d'achat du salaire</li></ol></div>
+        <div class="pj-card"><div class="h">Quatre questions sur la feuille</div><ol class="pj-ol"><li>PIB réel et croissance</li><li>PIB réel par habitant</li><li>Productivité horaire et heures travaillées</li><li>Un PIB révisé de 89 %</li></ol></div>
         <p class="p-sub">Montrez vos calculs, avec leurs unités.</p>
       </div>
       <div class="p-grow" style="display:flex;justify-content:center">${C.timer(600)}</div>
@@ -4929,12 +4929,14 @@ window.FICHE_PJ = (function () {
     id: 'pib-revenu', part: P, title: 'Du PIB au revenu disponible des ménages',
     html: `<div class="p-row" style="gap:50px">
       <div class="p-w50"><div id="pj-rev" style="width:100%;height:440px"></div></div>
-      <div class="p-grow p-col" style="gap:18px">
-        ${def('Revenu disponible des ménages', 'Revenus et prestations sociales, moins impôts directs et cotisations : ce qu\'ils peuvent consommer ou épargner.', { cls: 'compact' })}
-        <p class="p-txt">${k('rev', n(RV.rdb_menages, 0) + NB + 'Md€')} de revenu disponible pour ${k('vol', n(RV.pib, 0) + NB + 'Md€')} de PIB : ${k('rev', n(RV.par_habitant.rdb, 0) + NB + '€')} par habitant et par an.</p>
-        ${s(1, `<div class="pj-card"><div class="h">Où va le reste&#8239;?</div><p>Ce que gardent les entreprises, dont de quoi remplacer leur capital usé, et les impôts et cotisations qui financent les services publics.</p></div>`)}
+      <div class="p-grow p-col" style="gap:14px">
+        <p class="p-sub"><b>Revenu national brut (RNB)</b> : PIB + revenus reçus de l'étranger − revenus versés à l'étranger.</p>
+        ${s(1, `<p class="p-sub"><b>Revenu disponible brut (RDB) des ménages</b> : revenus et prestations sociales, moins impôts directs et cotisations ; ce qu'ils peuvent consommer ou épargner.</p>
+        <p class="p-txt" style="margin-top:12px">${k('rev', n(RV.rdb_menages, 0) + NB + 'Md€')} pour ${k('vol', n(RV.pib, 0) + NB + 'Md€')} de PIB : ${k('rev', n(RV.par_habitant.rdb, 0) + NB + '€')} par habitant et par an.</p>`)}
+        ${s(2, `<p class="p-sub"><b>RDB ajusté</b> : RDB + services publics dont chaque ménage bénéficie (santé, éducation, logement), ${n(RV.transferts_nature, 0)}${NB}Md€.</p>`)}
+        ${s(3, `<p class="p-sub"><b>Le reste du PIB</b> : profits gardés par les entreprises, dont l'usure du capital, et impôts des services collectifs.</p>`)}
       </div></div>`,
-    source: `${SRC.insee_cn}, tableaux 1.114 et 7.401 (comptes des ménages, 2025). RDB : revenu disponible brut. Revenu national brut : PIB + revenus reçus de l'étranger − revenus versés à l'étranger. RDB ajusté : avec les services publics dont bénéficient les ménages (santé, éducation, logement).`,
+    source: `${SRC.insee_cn}, tableaux 1.114 et 7.401 (comptes des ménages, 2025). Brut : comme pour le PIB, l'usure du capital n'est pas retirée. Services publics dont bénéficient les ménages : transferts sociaux en nature.`,
     prov: 'obs'
   });
 
@@ -5123,10 +5125,12 @@ window.FICHE_PJ = (function () {
   });
   SLIDES.push({
     id: 'kaya-q', part: P, title: 'Quelle baisse d\'intensité faut-il pour stabiliser les émissions&#8239;?',
-    html: `<div class="p-center" style="gap:34px">
+    html: `<div class="p-center" style="gap:24px">
+      <p class="p-txt" style="text-align:center">Population × production par habitant = PIB, donc ${k('em', v('E'))} = ${k('vol', v('Y'))} × ${k('int', v('E') + '/' + v('Y'))}. D'une année à l'autre, chaque terme est multiplié par son coefficient multiplicateur :</p>
+      <p class="pj-f sm" style="font-size:36px">${k('em', v('E') + '<sub>1</sub> / ' + v('E') + '<sub>0</sub>')} = ${k('vol', v('Y') + '<sub>1</sub> / ' + v('Y') + '<sub>0</sub>')} × ${k('int', '(' + v('E') + '/' + v('Y') + ')<sub>1</sub> / (' + v('E') + '/' + v('Y') + ')<sub>0</sub>')}</p>
       <div class="pj-fbox"><p class="pj-f sm" style="font-size:34px">(1 + ${k('em', 'croissance des émissions')}) = (1 + ${k('vol', 'croissance du PIB')}) × (1 + ${k('int', 'variation de l\'intensité')})</p></div>
-      <p class="p-txt">${FICHE_PJ.tag('5.2')} Le PIB croît de ${k('vol', '2 %')} par an. De combien l'${k('int', 'intensité')} doit-elle baisser chaque année pour que les émissions restent stables&#8239;?</p>
-      ${s(1, `<p class="pj-f">${k('em', '1')} = ${k('vol', '1,02')} × ${k('int', '(1 + variation)')} &nbsp;⇒&nbsp; ${k('int', '1 / 1,02 − 1 = −2,0 % par an')}</p>`)}
+      ${s(1, `<p class="p-txt">${FICHE_PJ.tag('5.2')} Le PIB croît de ${k('vol', '2 %')} par an. De combien l'${k('int', 'intensité')} doit-elle baisser chaque année pour que les émissions restent stables&#8239;?</p>`)}
+      ${s(2, `<p class="pj-f">${k('em', '1')} = ${k('vol', '1,02')} × ${k('int', '(1 + variation)')} &nbsp;⇒&nbsp; ${k('int', '1 / 1,02 − 1 = −2,0 % par an')}</p>`)}
     </div>`,
     prov: null
   });
@@ -5942,6 +5946,9 @@ window.FICHE_PJ = (function () {
   const DC = [[1.2, 3.6, 'Le rythme de 2015-2025'], [-1, 3.6, 'Décroissance de 1 % par an'], [-7.4, 1.8, 'Une crise de 2020 chaque année']];
   const e0 = R.fr_ges_territoire_2025, t30 = R.fr_ges_cible_2030_snbc3, t50 = R.fr_ges_territoire_1990 / 6;
   const reqI = gy => (Math.pow(t30 / e0, 1 / 5) / (1 + gy / 100) - 1) * 100;
+  // observé de 2015 à 2025 : PIB en volume et intensité (émissions territoriales / PIB), taux annuels moyens
+  const g15 = D.fr_ges.find(r => r[0] === 2015), g25 = D.fr_ges.find(r => r[0] === 2025);
+  const gY1525 = (Math.pow(g25[6] / g15[6], 1 / 10) - 1) * 100, gI1525 = (Math.pow((g25[5] / g25[6]) / (g15[5] / g15[6]), 1 / 10) - 1) * 100;
   scenes('decarb-scen', (s, animate, entering) => {
     const i = Math.min(s, 2), [gy, gi, nom] = DC[i], f = (1 + gy / 100) * (1 - gi / 100), ge = (f - 1) * 100;
     const proj = Array.from({ length: 26 }, (_, t) => [2025 + t, e0 * Math.pow(f, t)]);
@@ -5956,8 +5963,8 @@ window.FICHE_PJ = (function () {
     if (s >= 3) {
       put('pj-dcs-card', `<div class="p-col" style="gap:24px">${rule('La règle')}
         <p class="p-txt">Il faut ${k('em', pcs(R.fr_ges_rythme_requis_2025_2030_pct, 1))} d'émissions par an, contre ${k('em', pcs(R.fr_ges_rythme_2015_2025_pct, 1))} de 2015 à 2025.</p>
-        <div class="pj-steps">${st(`Avec une croissance de ${k('vol', '+1 %')}`, k('int', pcs(reqI(1), 0) + ' d\'intensité par an'))}${st(`Avec une décroissance de ${k('vol', '−1 %')}`, k('int', pcs(reqI(-1), 0) + ' d\'intensité par an'))}</div>
-        <p class="p-sub">La croissance change l'effort d'un ou deux points : le levier décisif reste l'intensité.</p></div>`);
+        <div class="pj-steps">${st(`Observé, 2015-2025 (PIB ${k('vol', pcs(gY1525, 1))} par an)`, k('int', pcs(gI1525, 1) + ' d\'intensité par an'))}${st(`Nécessaire avec une croissance de ${k('vol', '+1 %')}`, k('int', pcs(reqI(1), 1) + ' d\'intensité par an'))}${st(`Nécessaire avec une décroissance de ${k('vol', '−1 %')}`, k('int', pcs(reqI(-1), 1) + ' d\'intensité par an'))}</div>
+        <p class="p-sub">Même en décroissance, l'intensité devrait baisser plus vite que de 2015 à 2025 ; avec 1 % de croissance, ${fmt(reqI(1) / gI1525, 1)} fois plus vite.</p></div>`);
       return;
     }
     const e30 = e0 * Math.pow(f, 5);
