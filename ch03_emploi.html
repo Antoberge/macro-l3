@@ -4324,7 +4324,7 @@ window.FICHE_PJ = (function () {
   const expl = [
     `<p class="p-txt">Avant l'IA : ${k('pop', '100')} comptables.</p>`,
     `<p class="p-txt"><b>Remplacement.</b> L'IA se substitue au comptable pour ${k('cap', '45 %')} de son travail : à nombre de dossiers égal, il faudrait 45 % de comptables en moins.</p>`,
-    `<p class="p-txt"><b>Productivité.</b> Un dossier demande 45 % de temps en moins, son prix baisse : avec ε&nbsp;=&nbsp;0,5, les clients en demandent ${n(100 * (Math.pow(T, -e) - 1), 0)} % de plus. Les tâches qui restent au comptable, complémentaires de l'IA, augmentent d'autant : ${k('pop', '+ ' + n(prod, 0))}.</p>`,
+    `<p class="p-txt"><b>Productivité.</b> 45 % de temps en moins par dossier : la productivité est multipliée par 1 + ${v('g')} = 1 / 0,55 ≈ ${n(1 / T, 2)}, le prix divisé par ${n(1 / T, 2)}. Avec ε&nbsp;=&nbsp;0,5, les clients demandent ${n(1 / T, 2)}<sup>0,5</sup> ≈ ${n(Math.pow(T, -e), 2)} fois plus de dossiers. Les tâches qui restent au comptable, complémentaires de l'IA, augmentent d'autant : ${k('pop', '+ ' + n(prod, 0))}.</p>`,
     `<p class="p-txt"><b>Tâches nouvelles.</b> Conseiller les clients sur l'usage de l'IA : ${k('h', '+ 10')} % du travail initial.</p><p class="p-stmt sm">Résultat : ${k('res', '− ' + n(100 - fin - 10, 0) + ' %')}, contre − 45 % si l'on ne comptait que le remplacement.</p>`
   ];
   SLIDES.push({
@@ -4334,7 +4334,7 @@ window.FICHE_PJ = (function () {
         <p class="p-sub" style="font-size:23px">Exemple fictif · ε&nbsp;=&nbsp;0,5 · le prix d'un dossier suit le temps de travail qu'il demande</p></div>
       <div class="p-grow p-swap">${expl.map((h, i) => phase(i, i < expl.length - 1 ? i : null, h)).join('')}</div>
     </div>`,
-    source: `Exemple fictif. Temps restant par dossier ${v('T')} = 0,55 ; emploi sur les dossiers × ${v('T')}<sup>1 − ε</sup> = 0,55<sup>0,5</sup> = ${n(dossiers, 2)} ; tâche nouvelle : + 0,10. Cadre : ${SRC.ar2019}.`,
+    source: `Exemple fictif. Temps par dossier × ${v('T')} = 0,55, soit 1 + ${v('g')} = 1 / ${v('T')} ; emploi sur les dossiers × (1 + ${v('g')})<sup>ε − 1</sup> = ${v('T')}<sup>1 − ε</sup> = 0,55<sup>0,5</sup> = ${n(dossiers, 2)} ; tâche nouvelle : + 0,10. Cadre : ${SRC.ar2019}.`,
     prov: 'sim'
   });
 
@@ -4343,13 +4343,13 @@ window.FICHE_PJ = (function () {
     id: 'taches-formule', part: P, title: 'D\'où vient la formule de l\'emploi d\'un métier&#8239;?',
     html: `<div class="p-col" style="gap:20px">
       <div class="pj-fbox">
-        <div><p class="pj-f sm left">temps et ${k('prix', 'prix')} par dossier × ${k('h', v('T'))}, avec ${k('h', v('T'))} = 1 − ${k('cap', v('a'))}</p></div>
-        ${s(1, `<p class="pj-f sm left">dossiers demandés × ${k('h', v('T'))}<sup>−ε</sup></p>`)}
+        <div><p class="pj-f sm left">temps et ${k('prix', 'prix')} par dossier × ${k('h', v('T'))}, avec ${k('h', v('T'))} = 1 − ${k('cap', v('a'))} : productivité × (1 + ${v('g')}) = 1 / ${k('h', v('T'))}</p></div>
+        ${s(1, `<p class="pj-f sm left">dossiers demandés × (1 + ${v('g')})<sup>ε</sup> = ${k('h', v('T'))}<sup>−ε</sup></p>`)}
         ${s(2, `<p class="pj-f sm left">${k('pop', 'emploi')} = dossiers × temps + ${k('h', v('n'))} = ${k('h', v('T'))}<sup>−ε</sup> × ${k('h', v('T'))} + ${k('h', v('n'))} = ${k('h', v('T'))}<sup>1 − ε</sup> + ${k('h', v('n'))}</p>`)}
       </div>
       <div class="p-swap">
         ${until(0, `<p class="pj-why">L'IA fait une part ${k('cap', v('a'))} du temps de travail, pour un coût faible : le temps par dossier est multiplié par ${v('T')}, et le prix, qui suit le coût du travail, aussi.</p>`)}
-        ${swap(1, 1, `<p class="pj-why">Un prix multiplié par ${v('T')} : avec l'élasticité ε, les clients demandent ${v('T')}<sup>−ε</sup> fois plus de dossiers (partie 2).</p>`)}
+        ${swap(1, 1, `<p class="pj-why">Un prix divisé par 1 + ${v('g')} : les clients demandent (1 + ${v('g')})<sup>ε</sup> fois plus de dossiers, comme dans la règle du secteur (partie 2).</p>`)}
         ${swap(2, 2, `<p class="pj-why">L'emploi, en part du travail initial, compte le temps passé sur tous les dossiers, plus les tâches nouvelles ${v('n')}. C'est la règle du secteur de la partie 2, avec 1 + ${v('g')} = 1 / ${v('T')}.</p>`)}
         ${s(3, `<p class="p-txt">Application, le comptable : ${k('cap', v('a'))} = 0,45 et ε&nbsp;=&nbsp;0,5 : 0,55<sup>0,5</sup> = ${k('pop', '0,74')} (− 26 %) ; avec ${k('h', v('n'))} = 0,10 : ${k('pop', '0,84')} (− 16 %).</p>`)}
       </div>
@@ -4601,7 +4601,7 @@ window.FICHE_PJ = (function () {
   SLIDES.push({
     id: 'modele', part: P, title: 'Une économie faite de tâches',
     html: `<div class="p-center" style="gap:30px">
-      <p class="p-txt">Des tâches de même poids, faites par des machines ou par des humains : le métier découpé en tâches de la partie 3, à l'échelle de l'économie. La part du travail est la part ${k('h', v('h'))} des tâches faites par des humains.</p>
+      <p class="p-txt">Le métier découpé en tâches de la partie 3, à l'échelle de l'économie : des tâches faites par des machines ou par des humains. Chaque tâche reçoit la même part du PIB, versée à qui la fait : la part du travail (revenu du travail / PIB) est la part ${k('h', v('h'))} des tâches humaines.</p>
       <div id="pj-ma0" style="width:100%;height:190px"></div>
       ${s(1, `<p class="p-stmt sm">Application : ${k('cap', '40')} tâches sur 100 faites par des machines, ${k('h', '60')} par des humains, soit ${k('h', v('h'))} = ${k('rev', '60 %')}.</p>`)}
       ${s(2, `<p class="p-sub">Hypothèses : dans une tâche, machine et humain sont substituts, la tâche va au moins cher ; les tâches sont complémentaires, il les faut toutes pour produire ; capital et nombre de travailleurs donnés (effet immédiat) ; une tâche automatisée coûte ${k('moins', v('c'))} de moins.</p>`)}
@@ -4616,7 +4616,7 @@ window.FICHE_PJ = (function () {
     html: `<div class="p-col" style="gap:16px">
       <div><div class="pj-fbox">
         <p class="pj-f sm">${k('rev', 'part du travail')} = ${k('h', v('h'))} − ${k('cap', v('a'))} + ${k('h', v('n'))} ; &nbsp;${k('vol', 'production')} × (1 + ${k('cap', v('a'))} × ${k('moins', v('c'))}) ; &nbsp;${k('res', 'revenu')} = part × production</p></div>
-        <p class="pj-why">${v('a')} : part des tâches que prend l'IA ; ${v('c')} : économie de coût dans ces tâches ; ${v('n')} : tâches nouvelles. Une part ${v('a')} des tâches coûte ${v('c')} de moins : avec les mêmes ressources, on produit environ ${v('a')} × ${v('c')} de plus.</p></div>
+        <p class="pj-why">Part du travail = revenu du travail / PIB = part des tâches humaines, chaque tâche recevant la même part du PIB. ${v('a')} : part des tâches que prend l'IA ; ${v('c')} : économie de coût dans ces tâches ; ${v('n')} : tâches nouvelles. Une part ${v('a')} des tâches coûte ${v('c')} de moins : avec les mêmes ressources, on produit environ ${v('a')} × ${v('c')} de plus.</p></div>
       <div id="pj-ma-head"></div>
       <div id="pj-ma" style="width:100%;height:150px"></div>
       <div class="p-grid3" id="pj-ma-res"></div>
