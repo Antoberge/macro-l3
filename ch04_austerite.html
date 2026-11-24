@@ -4637,11 +4637,21 @@ window.FICHE_PJ = (function () {
     id: 'stab-def', part: P, title: 'Les stabilisateurs amortissent les chocs',
     html: `<div class="p-center" style="gap:26px">
       ${def('Stabilisateurs automatiques', 'Impôts et dépenses qui varient d\'eux-mêmes avec la conjoncture : ils creusent le déficit en récession et le réduisent en expansion.', { cls: 'compact' })}
-      ${s(1, `<div class="p-kpi h md"><div class="v">≈ ${p1(se)} point</div><div class="l">de PIB : dégradation du solde public de la France quand la production baisse de 1 %, la <b>semi-élasticité du solde</b> (écran suivant)</div></div>`)}
+      ${s(1, `<div class="p-kpi h md"><div class="v">≈ ${p1(se)} point</div><div class="l">de PIB : dégradation du solde public de la France quand la production baisse de 1 %, la <b>semi-élasticité du solde</b> (calculée plus loin)</div></div>`)}
       ${s(2, `<div class="p-kpi h md"><div class="v">${n(dfp['Union européenne'], 0)} % contre ${n(dfp['États-Unis'], 0)} %</div><div class="l">d'une baisse des revenus absorbée par les impôts et les transferts, Union européenne contre États-Unis</div></div>`)}
     </div>`,
     source: `Semi-élasticité du solde public : ${SRC.mpl} (${n(se, 2)} pour la France). ${SRC.dfp}.`,
     prov: 'obs'
+  });
+
+  SLIDES.push({
+    id: 'solde-fiche', part: P, title: 'Le solde public dans le modèle',
+    html: `<div class="p-center"><div style="max-width:1240px;margin:0 auto;width:100%">${goal('à dépenses inchangées, de combien le solde public varie-t-il quand la production varie&#8239;?')}${C.fiche({ name: 'Solde public dans le modèle',
+      formula: `${k('fp', v('B'))} = ${k('moins', v('t'))} ${k('vol', v('Y'))} − ${k('dep', v('G'))} ; Δ${k('fp', v('B'))} = ${k('moins', v('t'))} Δ${k('vol', v('Y'))} − Δ${k('dep', v('G'))}`,
+      vars: [[k('fp', v('B')), 'solde public (négatif : déficit)'], [k('moins', v('t')), 'part prélevée sur chaque euro de production']], varsInline: true,
+      trap: `croire qu'un déficit qui se creuse vient d'une hausse des dépenses : avec Δ${k('dep', v('G'))} = 0, il se creuse de ${k('moins', v('t'))} Δ${k('vol', v('Y'))}. Le même ${v('t')} réduit le multiplicateur : le déficit absorbe une partie du choc.`,
+      steps: { vars: 1, trap: 2 } })}</div></div>`,
+    prov: null
   });
 
   // 19 novembre 2026 (remarque d'Antonin) : la semi-élasticité du solde, calculée dans le modèle puis estimée pour la France
@@ -4658,15 +4668,6 @@ window.FICHE_PJ = (function () {
     prov: null
   });
 
-  SLIDES.push({
-    id: 'solde-fiche', part: P, title: 'Le solde public dans le modèle',
-    html: `<div class="p-center"><div style="max-width:1240px;margin:0 auto;width:100%">${goal('à dépenses inchangées, de combien le solde public varie-t-il quand la production varie&#8239;?')}${C.fiche({ name: 'Solde public dans le modèle',
-      formula: `${k('fp', v('B'))} = ${k('moins', v('t'))} ${k('vol', v('Y'))} − ${k('dep', v('G'))} ; Δ${k('fp', v('B'))} = ${k('moins', v('t'))} Δ${k('vol', v('Y'))} − Δ${k('dep', v('G'))}`,
-      vars: [[k('fp', v('B')), 'solde public (négatif : déficit)'], [k('moins', v('t')), 'part prélevée sur chaque euro de production']], varsInline: true,
-      trap: `croire qu'un déficit qui se creuse vient d'une hausse des dépenses : avec Δ${k('dep', v('G'))} = 0, il se creuse de ${k('moins', v('t'))} Δ${k('vol', v('Y'))}. Le même ${v('t')} réduit le multiplicateur : le déficit absorbe une partie du choc.`,
-      steps: { vars: 1, trap: 2 } })}</div></div>`,
-    prov: null
-  });
 
   // Le solde structurel : la fiche, puis le budget de 2027 en pont
   SLIDES.push({
@@ -4684,7 +4685,7 @@ window.FICHE_PJ = (function () {
   const expl27 = [
     `<p class="p-txt">En 2026, le déficit prévu est de ${k('fp', p1(-PLF.solde_effectif['2026']) + NB + '%')} du PIB.</p>`,
     `<p class="p-txt">Les mesures de 2027 réduisent le déficit de ${k('dep', p1(PLF.effort_depense))} point par des économies de dépenses et de ${k('moins', p1(PLF.effort_recettes))} par des hausses d'impôts : ${p1(PLF.effort_structurel_primaire)} point d'« effort ».</p>`,
-    `<p class="p-txt">Mais, à taux d'imposition inchangés, les impôts progressent moins vite que le PIB (${k('moins', '+ ' + p1(-(PLF.po_spontanes + PLF.recettes_hors_po)))} point de déficit), et les intérêts de la dette augmentent (${k('moins', '+ ' + p1(-PLF.contribution_charge_dette))}).</p>`,
+    `<p class="p-txt">Mais, à taux inchangés, les recettes progressent moins vite que le PIB (élasticité de ${n(PLF.elasticite_po || 0.8, 1)}) : leur part dans le PIB baisse, le déficit se creuse de ${k('moins', p1(-(PLF.po_spontanes + PLF.recettes_hors_po)))} point. Les intérêts de la dette augmentent (${k('moins', '+ ' + p1(-PLF.contribution_charge_dette))}).</p>`,
     `<p class="p-txt">La conjoncture ajoute ${k('vol', '+ ' + p1(PLF.solde_conjoncturel['2026'] - PLF.solde_conjoncturel['2027']))} point : déficit de ${k('fp', p1(-PLF.solde_effectif['2027']) + NB + '%')} en 2027.</p>`,
     def('Ajustement structurel', `Variation du solde structurel : ${p1(PLF.solde_structurel['2027'])} − (${p1(PLF.solde_structurel['2026'])}) = ${k('fp', '+' + NB + p1(PLF.ajustement_structurel))} point en 2027 ; ${k('fp', '+' + NB + p1(PLF.ajustement_structurel_primaire))} point hors intérêts.`, { cls: 'compact' })
   ];
@@ -4718,11 +4719,10 @@ window.FICHE_PJ = (function () {
 
   SLIDES.push({
     id: 'cible-fiche', part: P, title: 'Le multiplicateur quand l\'État tient son solde',
-    html: `<div class="p-center"><div style="max-width:1300px;margin:0 auto;width:100%">${goal(`l'État s'est fixé un objectif, garder le même déficit. S'il coupe ses dépenses à chaque baisse de ses recettes, de combien la production baisse-t-elle au total après une baisse de l'investissement&#8239;? ${v('k')}<sub>cible</sub> répond : c'est ce multiplicateur.`)}${C.fiche({ name: 'Multiplicateur avec cible de déficit',
-      formula: `<span style="display:block;font-size:.8em;margin-bottom:10px">Δ${k('fp', v('B'))} = 0 ⟹ Δ${k('dep', v('G'))} = ${k('moins', v('t'))} Δ${k('vol', v('Y'))}, et Δ${k('vol', v('Y'))} = ${k('res', v('k'))} (Δ${k('dep', v('I'))} + ${k('moins', v('t'))} Δ${k('vol', v('Y'))})</span>${k('res', v('k') + '<sub>cible</sub>')} = ${frac('Δ' + k('vol', v('Y')), 'Δ' + k('dep', v('I')))} = ${frac('1', '(1 − ' + k('conso', v('c')) + ') (1 − ' + k('moins', v('t')) + ') + ' + k('moins', v('m')))}`,
+    html: `<div class="p-center"><div style="max-width:1300px;margin:0 auto;width:100%">${goal(`l'État garde le même déficit en coupant ses dépenses : pour une baisse Δ${v('I')} de l'investissement, de combien la production baisse-t-elle au total&#8239;?`)}${C.fiche({ name: 'Multiplicateur avec cible de déficit',
+      formula: `<span style="display:block;font-size:.72em;margin-bottom:8px;text-align:left">L'État réagit : Δ${k('fp', v('B'))} = 0 ⟹ Δ${k('dep', v('G'))} = ${k('moins', v('t'))} Δ${k('vol', v('Y'))}, donc Δ${k('vol', v('Y'))} = ${k('res', v('k'))} (Δ${k('dep', v('I'))} + ${k('moins', v('t'))} Δ${k('vol', v('Y'))})</span><span style="display:block;font-size:.72em;margin-bottom:8px;text-align:left">On résout en Δ${k('vol', v('Y'))} : Δ${k('vol', v('Y'))} − ${k('res', v('k'))} ${k('moins', v('t'))} Δ${k('vol', v('Y'))} = ${k('res', v('k'))} Δ${k('dep', v('I'))}, donc Δ${k('vol', v('Y'))} = ${frac(k('res', v('k')), '1 − ' + k('res', v('k')) + ' ' + k('moins', v('t')))} Δ${k('dep', v('I'))}</span>${k('res', v('k') + '<sub>cible</sub>')} = ${frac('Δ' + k('vol', v('Y')), 'Δ' + k('dep', v('I')))} = ${frac(k('res', v('k')), '1 − ' + k('res', v('k')) + ' ' + k('moins', v('t')))} = ${frac('1', '(1 − ' + k('conso', v('c')) + ') (1 − ' + k('moins', v('t')) + ') + ' + k('moins', v('m')))}`,
       example: `ordres de grandeur français (${v('c')} = 0,6, ${v('t')} = ${n(FR.t, 2)}, ${v('m')} = ${n(FR.m, 2)}) : ${k('res', p1(X.kCible(FR)))} avec la cible, contre ${p1(X.k(FR))} sans.`,
-      trap: 'croire que tenir la cible réduit le déficit : il reste à son niveau de départ, avec une production plus basse.',
-      steps: { example: 1, trap: 2 } })}</div></div>`,
+            steps: { example: 1 } })}</div></div>`,
     source: `Ordres de grandeur français : c = 0,6, t = ${n(FR.t, 2)} (prélèvements obligatoires), m = ${n(FR.m, 2)} (importations), 2025.`,
     prov: 'sim'
   });
@@ -5993,7 +5993,7 @@ window.Croix = (function () {
     return [{ label: 'Déficit|2026', value: -P.solde_effectif['2026'], total: true, color: PET },
             { label: 'Économies|de|dépenses', value: -P.effort_depense, color: OLIVE },
             { label: 'Hausses|d\'impôts', value: -P.effort_recettes, color: RED },
-            { label: 'Impôts|plus lents|que le PIB', value: -(P.po_spontanes + P.recettes_hors_po), color: '#DE9E97' },
+            { label: 'Recettes|moins|dynamiques', value: -(P.po_spontanes + P.recettes_hors_po), color: '#DE9E97' },
             { label: 'Intérêts|en plus', value: -P.contribution_charge_dette, color: '#96382F' },
             { label: 'Conjonc-|ture', value: -(P.solde_conjoncturel['2027'] - P.solde_conjoncturel['2026']), color: BLUE },
             { label: 'Déficit|2027', value: -P.solde_effectif['2027'], total: true, color: PET }];
